@@ -66,7 +66,9 @@ void parallel_task_with_python_objects(int iterations, int num_threads) {
         py_list.append(0.0);
     }
     
-    // Release GIL before creating threads to prevent deadlock
+    // Release GIL before creating threads to prevent deadlock.
+    // The main python thread holds the GIL when this pybind function is called,
+    // we need to release is here before it can be acquired for accessing Python objects
     {
         pybind11::gil_scoped_release release;
         
