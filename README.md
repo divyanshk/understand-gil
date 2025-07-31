@@ -41,8 +41,8 @@ python main.py
 
 **GIL (Global Interpreter Lock)**: Python's mechanism that ensures only one thread executes Python bytecode at a time.
 
-**Releasing GIL**: C extensions can release the GIL during CPU-intensive operations, allowing true parallelism. **Note**: When you call a C++ function via pybind11 from Python, the GIL (Global Interpreter Lock) is not automatically released. If you want the GIL to be released while executing C++ code, you must explicitly release it in your C++ function using: `pybind11::gil_scoped_release release;` 
-
+**Releasing GIL**: C extensions can release the GIL during CPU-intensive operations, allowing true parallelism. **Note**: When you call a C++ function via pybind11 from Python, the GIL (Global Interpreter Lock) is not automatically released. If you want the GIL to be released while executing C++ code, you must explicitly release it in your C++ function using: `pybind11::gil_scoped_release release;`. When releasing the GIL from native code (usually in long running operations), we allow waiting Python threads to acquire the GIl and hence continue with Python code. If multiple threads hit native operations (each releasing the GIL and hence allows for multiple Python threads to get 'scheduled' one by one), then they can all run their native code in parallel.   
+ 
 **Performance Impact**: Without GIL, multi-threaded CPU-bound tasks can achieve near-linear speedup.
 
 **C++ threads accessing Python objects**: this requires acquiring the GIL and can impact performance. Also, if you're creating threads that need the GIL, release it first so they can acquire it.
